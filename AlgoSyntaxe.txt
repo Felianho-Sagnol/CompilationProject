@@ -1,0 +1,13 @@
+@val1
+@val2
+Gui
+	write["Debut du Programme"]
+	@val=10
+	@val2=09
+	read[@val2]
+	#[@val1==10]
+	 	@val=20
+	.
+	//un commentaire ici
+	write["fin du Programme"]
+nea

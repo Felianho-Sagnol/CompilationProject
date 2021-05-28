@@ -1,0 +1,87 @@
+%token GUI NEA // les lexemes que doit fournir yylex()
+	%token IDENTIF ENTIER SI EGAL INFEG SUPEG READ WRITE CRO_F CRO_O
+	%token SINONSI DIFF SINON FOR CHAINE SUP INF INLINE GRIF PLUS EGALCONDI POINT
+	%start program // l’axiome de notre grammaire
+	%%
+	program : listDeclaration GUI listInstr NEA {printf(" sqlt pgme\n");}
+	;
+	listDeclaration : IDENTIF
+	;
+
+	listInstr : listInstr inst
+	| inst
+	;
+	inst : affectation | condition|affichage|saisie| affectation condition affichage saisie
+	;
+	affichage : WRITE CRO_O text CRO_F INLINE
+	 {printf(" instruction d'affichage");}
+	;
+	saisie : READ CRO_O IDENTIF CRO_F INLINE
+	 {printf("instruction de saisie");}
+	;
+	text: chaine| contenu PLUS text|contenu|list
+	;
+	contenu : IDENTIF
+	;
+	chaine : GRIF CHAINE GRIF
+	;
+	list: chaine PLUS contenu | PLUS chaine | PLUS contenu
+	;
+	affectation : IDENTIF EGAL expr INLINE {printf(" instruction d'affectation\n");}
+	;
+	condition : SI CRO_O comparaison CRO_F INLINE suite POINT {printf("instruction conditionelle");}
+	;
+	comparaison : IDENTIF
+	 {printf("une variable a comparer");}
+	 |IDENTIF comparant secondMembre
+	;
+	secondMembre : IDENTIF|ENTIER
+	;
+	comparant : EGALCONDI|SUP|INF|SUPEG|INFEG|DIFF
+	;
+	suite : SI CRO_O comparaison CRO_F INLINE suite SINONSI SI CRO_O comparaison CRO_F suite SINON suite
+	| inst SINON inst
+	|inst
+	;
+	expr : ENTIER
+	{printf(" expr entier \n");}
+	| IDENTIF
+	{printf(" expr identif \n");}
+	;
+	%%
+	void yyerror( const char * msg){
+	printf("line %d : %s", lineNumber, msg);
+	}
+	int main(int argc,char ** argv){
+	if(argc>1) yyin=fopen(argv[1],"r"); // check result !!!
+	lineNumber=1;
+	if(!yyparse())
+	printf("Expression correct\n");
+	return(0);
+    }
+
+
+    DECLARE INLINE listDeclaration INLINE END INLINE GUI INLINE listIntruction INLINE NEA 
+			;
+
+listDeclaration :	IDENTIF INLINE 
+					;
+
+listIntruction :	instruction INLINE
+					;
+			
+instruction :	affichage { printf("un affichage");}
+				|
+				affectation { printf("un affectation");}
+				;
+
+affichage :		WRITE CRO_O GRIF CHAINE GRIF CRO_F
+				;
+
+affectation :	IDENTIF EGAL expression
+				;
+
+expression :	IDENTIF 
+				|
+				ENTIER
+				;

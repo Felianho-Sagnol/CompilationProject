@@ -1,0 +1,10 @@
+@val1
+@val2
+Gui
+	write["bonjour les etudiants"]
+	@val=10
+	@val2=09
+	#[@val1==10]
+	 	@val=20
+	.
+nea
