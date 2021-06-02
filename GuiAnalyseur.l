@@ -9,8 +9,9 @@
 
 nbr [0-9]
 entier {nbr}+
-identif @[a-zA-Z][0-9a-zA-Z_]*
-chaine [a-zA-Z][0-9a-zA-Z_ ]*
+identifInt @n_[a-zA-Z][0-9a-zA-Z_]*
+identifStr @s_[a-zA-Z][0-9a-zA-Z_]*
+chaine [a-zA-Z][0-9a-zA-Z_ -@]*
 
 
 
@@ -38,18 +39,23 @@ chaine [a-zA-Z][0-9a-zA-Z_ ]*
 ","          { ECHO; return VIRGUL;}
 "\""         { ECHO; return GRIF;}
 "-"          { ECHO; return MOINS;}
+"("          { ECHO; return PA_O; }
+")"          { ECHO; return PA_F; }
 "*"          { ECHO; return MUL;}
 "/"          { ECHO; return DIV;}
 "%"          { ECHO; return MODULO;}
 "+"          { ECHO; return PLUS;}
 "\n"          {ECHO; lineNumber++;return INLINE;}
 [" "\t]      { }
-{entier}     { ECHO; valEntier = atoi(yytext); return ENTIER; };
-{identif}    { ECHO; strcpy(valIdentif, yytext); return IDENTIF; }
-{chaine}    { ECHO; strcpy(valChaine, yytext); return CHAINE; }
+{entier}     { ECHO; strcpy(yylval.var, yytext); return ENTIER; };
+{identifInt}    { ECHO;strcpy(yylval.var, yytext); return IDENTIFINT; };
+{identifStr}    { ECHO;strcpy(yylval.var, yytext); return IDENTIFSTR; };
+
+{chaine}    { strcpy(yylval.var, yytext); return CHAINE; }
 
 . {
     fprintf(stderr,"\tERREUR LEXICAL: Lexeme inconnu a la ligne %d. Il s'agit de %s et comporte %d lettre(s)\n",lineNumber,yytext,yyleng);
+	exit(-1);
 }
 %%
 int valEntier;

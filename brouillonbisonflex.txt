@@ -1,19 +1,24 @@
-========================syntaxique .y here========================
+==================================v.2=======================================
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
     #include <string.h>
+    #include "GuiSyntaxe.h"
 	extern FILE* yyin;
 	extern int valEntier;
     extern char valIdentif[256];
-    extern char valChaine[255];
+   	extern char valChaine[255];
 	int yylex(void); // defini dans progL.cpp, utilise par yyparse()
 	void yyerror(char * msg);
 	extern unsigned int lineNumber; // notre compteur de lignes
-
     typedef struct {
-       char *identif;
-       int type;
+      	char *identif;
+       	int type;
+		union
+		{
+			int intValue;
+			char* charValue;
+		} valeur;
     } ENTREE_DICO;
 
 #define TAILLE_INITIALE_DICO 50
@@ -37,6 +42,443 @@ void agrandirDico(void) {
     if (dico == NULL)
         yyerror("Erreur interne (pas assez de mémoire)");
 }
+int isToken(char *s){
+	for(int i=0;i<5;i++)
+	{
+		if(strcmp(s,TOKENS[i])==0) return 1;
+		else return 0;
+		
+	}
+}
+int isDeclared(char *s){
+	for(int i=0;i<sommet;i++){
+		if(strcmp(s,dico[i].identif)==0){
+			printf("\nidentif$1: %s est declare\n",s);
+			return 1;
+		} 
+	}
+	return 0;
+}
+
+void AjoutIdentif(char *identif,int type) {
+	if(isToken(identif)==1) {
+		printf("ERREUR --- linge %d :  Nom de variable est un mot cle\n",lineNumber-1);
+		exit(-1);
+	}
+    if(isDeclared(identif)==1) {
+		printf("ERREUR --- linge %d : Variable => %s deja declaree\n", lineNumber-1,identif);
+		exit(-2);
+	}
+    if (sommet >= maxDico)
+        agrandirDico();
+
+    dico[sommet].identif = malloc(strlen(identif) + 1);
+    if (dico[sommet].identif == NULL){
+		printf("Erreur interne pas assez de mémoire)");
+		exit(-1);
+	}
+        
+    strcpy(dico[sommet].identif, identif);
+    dico[sommet].type = type;
+	if(type == 0){
+		dico[sommet].valeur.intValue = 0;
+	}else{
+		dico[sommet].valeur.charValue = "";
+	}
+    sommet++;
+}
+
+void noDeclareError(char *s){
+	if(isDeclared(s)==0){
+		printf("*ERROR*-- la variable %s n est pas declare Ligne %d\n",s,lineNumber-1);
+		exit(-2);
+	}
+}
+void printDico(){
+	for(int i=0;i<sommet;i++){
+		printf("NomVariable:  %s\n TypeVariable: %d \n",dico[i].identif,dico[i].type);
+		if(dico[i].type==0)
+		{
+			printf("ValVariable: %d\n",dico[i].valeur.intValue);
+		}
+		else 	printf("ValVariable: %s\n",dico[i].valeur.charValue);
+	}
+}
+
+int isInt(char *s){
+	char c[4];
+	strcpy(c,"");
+	strncat(c,s,2);
+	if(strcmp("@n",c)==0) return 0;
+	else return 1;
+}
+
+void setValue(char *s,char *v){
+	int type = isInt(s);
+	for(int i=0;i<sommet;i++){
+		if(strcmp(s,dico[i].identif)==0){
+			if(type==0){
+				dico[i].valeur.intValue = atoi(v);
+			}else{
+				strcpy(dico[i].valeur.charValue,v);
+			}
+			break;
+		} 
+	}
+}
+
+int getIntValue(char *s){
+	int type = isInt(s);
+	for(int i=0;i<sommet;i++){
+		if(strcmp(s,dico[i].identif)==0){
+			if(type==0){
+				return dico[i].valeur.intValue;
+			}
+			break;
+		} 
+	}
+}
+
+char *getCharValue(char *s){
+	int type = isInt(s);
+	for(int i=0;i<sommet;i++){
+		if(strcmp(s,dico[i].identif)==0){
+			if(type==1){
+				return dico[i].valeur.charValue;
+			}
+			break;
+		} 
+	}
+}
+
+%}
+
+%union{
+	char var[256];
+	int entier;
+}
+%left PLUS MOINS
+%left MUL DIV
+
+%type<var> affectation
+%type<var> variable
+%type<var> terme
+%type<var> facteur
+%type<var> expressionArithmetique
+%type<var> texte
+%type<var> list_chaine
+
+
+
+
+/*----------------------- les tokens du langage--------------------------*/
+%token<var> GUI IDENTIFINT NEA WRITE READ  IDENTIFSTR
+%token<var> CHAINE
+%token<entier> ENTIER  
+%token CRO_O CRO_F /*[]*/
+%token INFEG SUPEG /* <= >= */
+%token PLUS MOINS /* +- */
+%token PA_F PA_O /*()*/
+%token DIV MUL/* multiplication et division */
+%token MODULO /* % */
+%token  VIRGUL  POINT /* . , */
+%token EGAL DIFF /* == !=*/
+%token SUP INF /*<>*/
+%token FOR INLINE EGALCONDI GRIF COMMENT  FUNCTION VIDE SI  SINON SINONSI 
+
+%start program
+
+%%
+program : listRetour
+		|
+		listDeclaration  GUI INLINE listInstruction NEA listRetour
+		|
+		listDeclaration  GUI INLINE listInstruction NEA
+			;
+listDeclaration :	declaration
+					|
+					listRetour
+					|
+					listDeclaration declaration
+					;
+
+
+declaration : 	variable INLINE
+				{
+					AjoutIdentif($1,isInt($1));
+				}
+				|
+				fonction
+				;
+variable: 	IDENTIFINT
+			|
+			IDENTIFSTR
+			;
+fonction: FUNCTION CHAINE CRO_O  CRO_F   POINT INLINE
+		|
+		FUNCTION CHAINE CRO_O listArgument CRO_F POINT INLINE
+			;
+
+listArgument: variable
+			| listArgument ',' variable
+			;
+
+listInstruction :instruction 
+				|
+				listInstruction instruction 
+				;
+			
+instruction :	affichage 
+					{
+						printf("instruction d'affichage\n");
+					}
+				|
+				affectation 
+					{
+						printf("instruction d'affectation\n");
+
+					}
+				|
+				condition
+					{
+						printf("instruction condition\n");
+
+					}
+				|
+				boucle
+					{
+						printf("instruction de boucle\n");
+					}
+				|
+				lecture
+					{
+						printf("instruction de lecture\n");
+					}
+				|
+				commentaire
+					{
+						printf("commentaire\n");
+					}
+				|
+				INLINE
+				;
+boucle :		for
+				|
+				while
+				;
+for		:		FOR variable CRO_O ENTIER VIRGUL ENTIER CRO_F INLINE listInstruction POINT INLINE
+				{
+					noDeclareError($2);
+					if($4>$6){
+						printf("* ERROR *-- La valeur initiale %d superieure a la valuer finale %d\n",$4,$6);
+						exit(-2);
+					}
+				}
+				;
+while	:		FOR CRO_O comparaison CRO_F INLINE listInstruction POINT INLINE
+				;
+
+commentaire :	COMMENT CHAINE INLINE
+				; 
+lecture :		READ CRO_O variable CRO_F INLINE
+				;
+affichage :		WRITE CRO_O contenu CRO_F INLINE
+				;
+contenu: simple_affichage
+		|
+		texte
+		|
+		concat
+        ;
+concat: texte POINT simple_affichage
+		|
+		simple_affichage POINT texte
+		|
+		texte POINT simple_affichage POINT texte
+		;
+texte:	GRIF list_chaine GRIF
+		;
+list_chaine:  CHAINE 
+			|
+			list_chaine CHAINE
+			;
+simple_affichage:ENTIER
+				|
+				variable
+				;
+
+affectation :IDENTIFINT EGAL expressionArithmetique INLINE
+		{
+			//noDeclareError($1);
+			printf("\n===%s======\n", $1);
+			//setValue($1,$3);
+		}
+		|
+		IDENTIFSTR EGAL texte INLINE
+			{
+				//noDeclareError($1);
+				printf("\n===%s======\n", $1);
+				//setValue($1,$3);
+			}
+		;
+
+expressionArithmetique :	expressionArithmetique PLUS terme
+				{
+					//$$ = $1 + $3;
+					printf("\n===%s======\n", $1);
+				}
+				|
+				expressionArithmetique MOINS terme
+				{
+					//$$ = $1 - $3;
+				}
+				|
+				terme
+				{
+					//$$ = $1;
+				}
+				;
+
+terme	:		terme MUL facteur
+				{
+					//$$ = $1 * $3;
+				}
+				|
+				terme DIV facteur
+				{
+					//$$ = $1 / $3;
+				}
+				|
+				facteur
+				{
+					//$$ = $1;
+				}
+				;
+facteur	:		PA_O expressionArithmetique PA_F
+				{
+					//$$ = $2;
+				}
+				|
+				MOINS facteur 
+				 {
+					//$$ = -$2;
+				 }				
+				|
+				ENTIER
+					{
+						//$$ = $1;
+					}
+				|
+				IDENTIFINT
+				{
+					noDeclareError($1);
+					printf("\n===%s======\n", $1);
+					//$$ = getIntValue($1);
+				}
+				;		
+condition: 		condition_si POINT INLINE
+            	|
+            	condition_si POINT INLINE condition_sinon 
+            	|
+            	condition_si POINT INLINE list_condition_sinon_si 
+            	;
+list_condition_sinon_si: condition_sinon_si POINT INLINE
+						|
+						condition_sinon_si POINT INLINE condition_sinon 
+						|
+						list_condition_sinon_si condition_sinon_si POINT INLINE
+                         ;
+condition_sinon_si:SINONSI CRO_O comparaison CRO_F INLINE listInstruction 
+ 				; 
+condition_si  :SI CRO_O comparaison CRO_F INLINE listInstruction 
+				;
+condition_sinon: SINON INLINE listInstruction POINT INLINE
+				;
+
+comparaison: variable signe_comparaison expressionArithmetique
+		{
+			noDeclareError($1);
+		}
+				;
+signe_comparaison: EGALCONDI 
+				   |
+				   SUPEG 
+				   |
+				   INFEG
+				   |
+				   INF
+				   |
+				   SUP
+				   |
+				   DIFF
+				   ;
+
+listRetour: Retour
+			|
+			listRetour Retour
+			;
+Retour : INLINE;
+%%		
+
+void yyerror(char * msg){
+	printf("\t Ligne %d : %s\n", lineNumber, msg);
+}
+int main(int argc,char ** argv){
+	if(argc>1) yyin=fopen(argv[1],"r"); // check result !!!
+	lineNumber=1;
+	if(!yyparse())
+	printf("Expression correct\n");
+	//printDico();
+	return(0);
+}
+
+----------------------------------lexical----------------------------------
+
+
+==================================v.1======================================
+%{
+	#include <stdio.h>
+	#include <stdlib.h>
+    #include <string.h>
+	extern FILE* yyin;
+	extern int valEntier;
+    extern char valIdentif[256];
+    extern char valChaine[255];
+	int yylex(void); // defini dans progL.cpp, utilise par yyparse()
+	void yyerror(char * msg);
+	extern unsigned int lineNumber; // notre compteur de lignes
+	union valeur{
+		int intValue;
+		char* charValue;
+	}
+    typedef struct {
+       char *identif;
+       int type;
+	   valeur val;
+    } ENTREE_DICO;
+
+#define TAILLE_INITIALE_DICO 50
+#define INCREMENT_TAILLE_DICO 25
+
+char TOKENS[5][8]={"Gui","nea","write","read", "CONST"};
+ENTREE_DICO *dico;
+int maxDico, sommet, base;
+
+void creerDico(void) {
+    maxDico = TAILLE_INITIALE_DICO;
+    dico = malloc(maxDico * sizeof(ENTREE_DICO));
+    if (dico == NULL)
+        yyerror("Erreur interne (pas assez de mémoire)");
+    sommet = base = 0;
+}
+
+void agrandirDico(void) {
+    maxDico = maxDico + INCREMENT_TAILLE_DICO;
+    dico = realloc(dico, maxDico);
+    if (dico == NULL)
+        yyerror("Erreur interne (pas assez de mémoire)");
+}
+
 int isToken(char *s)
 {
 	for(int i=0;i<3;i++)
@@ -60,13 +502,15 @@ int isDeclared(char *s)
 	return 0;
 }
 
+
+
 void AjoutIdentif(char *identif,int type) {
 	if(isToken(identif)==1) {
 		printf("ERREUR --- linge %d :  Nom de variable est un mot cle\n",lineNumber-1);
 		exit(-1);
 	}
     if(isDeclared(identif)==1) {
-		printf("ERREUR --- linge %d : Variable deja declaree\n", lineNumber-1);
+		printf("ERREUR --- linge %d : Variable => %s deja declaree\n", lineNumber-1,identif);
 		exit(-2);
 	}
     if (sommet >= maxDico)
@@ -80,17 +524,29 @@ void AjoutIdentif(char *identif,int type) {
         
     strcpy(dico[sommet].identif, identif);
     dico[sommet].type = type;
+	if(type == 0){
+		dico[sommet].val.intValue = 0;
+	}else{
+		dico[sommet].val.charValue = "";
+	}
     sommet++;
 }
 
-%}
-%union{
-	char var[255];
-	int entier;
+void noDeclareError(char *s){
+	if(isDeclared(s)==0){
+		printf("ERREUR --- linge %d : Variable => %s non declaree\n", lineNumber,s);
+		exit(-2);
+	}
 }
 
-%token GUI  <var>IDENTIF NEA <entier>ENTIER CRO_O CRO_F SI EGAL DIFF SINON SINONSI 
-%token WRITE READ INFEG SUPEG INF SUP FOR CHAINE POINT
+%}
+%union {
+    long nombre;
+    char* texte;
+}
+
+%token GUI  <texte>IDENTIF NEA <nombre>ENTIER CRO_O CRO_F SI EGAL DIFF SINON SINONSI 
+%token WRITE READ INFEG SUPEG INF SUP FOR CHAINE POINT PA_O PA_F
 %token INLINE EGALCONDI GRIF PLUS MOINS MUL MODULO DIV	COMMENT VIRGUL FUNCTION VIDE
 
 %start program
@@ -108,7 +564,7 @@ listDeclaration :	declaration
 
 declaration : 	IDENTIF INLINE
                 { 
-					AjoutIdentif(valIdentif,0);
+					AjoutIdentif($1,0);
 				}
 				|
 				FUNCTION CHAINE INLINE
@@ -138,15 +594,22 @@ boucle :		for
 				while
 				;
 for		:		FOR IDENTIF CRO_O ENTIER VIRGUL ENTIER CRO_F INLINE listInstruction POINT INLINE
+				{
+					noDeclareError($2);
+				}
 				;
 while	:		FOR CRO_O comparaison CRO_F INLINE listInstruction POINT INLINE
 				;
 
 commentaire :	COMMENT CHAINE INLINE
 				; 
-lecture :		READ CRO_O expression CRO_F INLINE
+lecture :		READ CRO_O IDENTIF CRO_F INLINE
+				{
+					noDeclareError($3);
+				}
 				;
 affichage :		WRITE CRO_O contenu CRO_F INLINE
+				
 				;
 contenu: simple_affichage
 		|
@@ -169,15 +632,13 @@ list_chaine:  CHAINE
 simple_affichage:ENTIER
 				|
 				IDENTIF
+				{
+					noDeclareError($1);
+				}
 				;
 
 affectation :	IDENTIF EGAL expression INLINE
-                {
-					if(isDeclared(valIdentif)==0){
-						printf("ERREUR --- linge %d : %s non declaree\n", lineNumber-1,valIdentif);
-		                exit(-2);
-					}
-				}
+                
 				;
 condition: 		condition_si POINT INLINE
             	|
@@ -198,7 +659,10 @@ condition_si  :SI CRO_O comparaison CRO_F INLINE listInstruction
 condition_sinon: SINON INLINE listInstruction POINT INLINE
 				;
 
-comparaison: IDENTIF signe_comparaison expression
+comparaison: 	IDENTIF signe_comparaison expression
+				{
+					noDeclareError($1);
+				}
 				;
 signe_comparaison: EGALCONDI 
 				   |
@@ -212,10 +676,30 @@ signe_comparaison: EGALCONDI
 				   |
 				   DIFF
 				   ;
-expression :	IDENTIF 
+expression :	expression PLUS terme
+				|
+				expression MOINS terme
+				|
+				terme
+				;
+
+terme	:		terme MUL facteur
+				|
+				terme DIV facteur
+				|
+				facteur
+				;
+facteur	:		PA_O expression PA_F
+				|
+				MOINS facteur
 				|
 				ENTIER
-				;		
+				|
+				IDENTIF
+				
+				;
+
+
 listRetour: Retour
 			|
 			listRetour Retour
@@ -234,7 +718,7 @@ int main(int argc,char ** argv){
 	return(0);
 }
 
-==================================flex lexical .l here ====================
+==========================================lexical en bas====================
 %{
 	#include <string.h>
 	#include "GuiSyntaxe.h"
@@ -270,6 +754,8 @@ chaine [a-zA-Z][0-9a-zA-Z_ ]*
 "<="         { ECHO; return INFEG; }
 ">="         { ECHO; return SUPEG; }
 "<"          { ECHO; return INF; }
+"("          { ECHO; return PA_O; }
+")"          { ECHO; return PA_F; }
 ">"          { ECHO; return SUP; }
 "."          { ECHO; return POINT;}
 ","          { ECHO; return VIRGUL;}
@@ -281,9 +767,9 @@ chaine [a-zA-Z][0-9a-zA-Z_ ]*
 "+"          { ECHO; return PLUS;}
 "\n"          {ECHO; lineNumber++;return INLINE;}
 [" "\t]      { }
-{entier}     { ECHO; valEntier = atoi(yytext); return ENTIER; };
-{identif}    { ECHO; strcpy(valIdentif, yytext); return IDENTIF; }
-{chaine}    { ECHO; strcpy(valChaine, yytext); return CHAINE; }
+{entier}     { ECHO; sscanf(yytext, "%ld", &yylval); return ENTIER; }
+{identif}    {ECHO;  yylval.texte = yytext; return IDENTIF; }
+{chaine}    { ECHO; yylval.texte = yytext; return CHAINE; }
 
 . {
     fprintf(stderr,"\tERREUR LEXICAL: Lexeme inconnu a la ligne %d. Il s'agit de %s et comporte %d lettre(s)\n",lineNumber,yytext,yyleng);

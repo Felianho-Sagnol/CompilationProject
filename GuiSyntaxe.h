@@ -39,38 +39,41 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     GUI = 258,
-     IDENTIF = 259,
-     NEA = 260,
-     ENTIER = 261,
-     CRO_O = 262,
-     CRO_F = 263,
-     SI = 264,
-     EGAL = 265,
-     DIFF = 266,
-     SINON = 267,
-     SINONSI = 268,
-     WRITE = 269,
-     READ = 270,
-     INFEG = 271,
-     SUPEG = 272,
-     INF = 273,
-     SUP = 274,
-     FOR = 275,
-     CHAINE = 276,
-     POINT = 277,
-     INLINE = 278,
-     EGALCONDI = 279,
-     GRIF = 280,
-     PLUS = 281,
-     MOINS = 282,
-     MUL = 283,
-     MODULO = 284,
-     DIV = 285,
-     COMMENT = 286,
-     VIRGUL = 287,
-     FUNCTION = 288,
-     VIDE = 289
+     MOINS = 258,
+     PLUS = 259,
+     DIV = 260,
+     MUL = 261,
+     PA_F = 262,
+     PA_O = 263,
+     ENTIER = 264,
+     IDENTIFINT = 265,
+     IDENTIFSTR = 266,
+     GUI = 267,
+     NEA = 268,
+     CRO_O = 269,
+     CRO_F = 270,
+     SI = 271,
+     EGAL = 272,
+     DIFF = 273,
+     SINON = 274,
+     SINONSI = 275,
+     WRITE = 276,
+     READ = 277,
+     INFEG = 278,
+     SUPEG = 279,
+     INF = 280,
+     SUP = 281,
+     FOR = 282,
+     CHAINE = 283,
+     POINT = 284,
+     INLINE = 285,
+     EGALCONDI = 286,
+     GRIF = 287,
+     MODULO = 288,
+     COMMENT = 289,
+     VIRGUL = 290,
+     FUNCTION = 291,
+     VIDE = 292
    };
 #endif
 
@@ -81,15 +84,15 @@ typedef union YYSTYPE
 {
 
 /* Line 1740 of yacc.c  */
-#line 86 "GuiSyntaxe.y"
+#line 113 "GuiSyntaxe.y"
 
-	char var[255];
+	char var[256];
 	int entier;
 
 
 
 /* Line 1740 of yacc.c  */
-#line 93 "GuiSyntaxe.h"
+#line 96 "GuiSyntaxe.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
