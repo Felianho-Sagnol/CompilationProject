@@ -84,7 +84,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1740 of yacc.c  */
-#line 113 "GuiSyntaxe.y"
+#line 146 "GuiSyntaxe.y"
 
 	char var[256];
 	int entier;

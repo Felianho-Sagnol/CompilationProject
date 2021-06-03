@@ -16,45 +16,45 @@ chaine [a-zA-Z][0-9a-zA-Z_ -@]*
 
 
 %%
-"Gui"          { ECHO; return GUI; }
-"nea"        { ECHO; return NEA; }
-"write"        { ECHO; return WRITE; }
-"read"        { ECHO; return READ; }
-"function"        { ECHO; return FUNCTION; }
-"#"          { ECHO; return SI; }
-"!"          { ECHO; return SINON; }
-"["          { ECHO; return CRO_O; }
-"]"          { ECHO; return CRO_F; }
-"!#"         { ECHO; return SINONSI; }
-"##"         { ECHO; return FOR;}
-"//"         { ECHO; return COMMENT;}
-"!="         { ECHO; return DIFF; }
-"=="         { ECHO; return EGALCONDI; }
-"="          { ECHO ; return EGAL;}
-"<="         { ECHO; return INFEG; }
-">="         { ECHO; return SUPEG; }
-"<"          { ECHO; return INF; }
-">"          { ECHO; return SUP; }
-"."          { ECHO; return POINT;}
-","          { ECHO; return VIRGUL;}
-"\""         { ECHO; return GRIF;}
-"-"          { ECHO; return MOINS;}
-"("          { ECHO; return PA_O; }
-")"          { ECHO; return PA_F; }
-"*"          { ECHO; return MUL;}
-"/"          { ECHO; return DIV;}
-"%"          { ECHO; return MODULO;}
-"+"          { ECHO; return PLUS;}
-"\n"          {ECHO; lineNumber++;return INLINE;}
+"Gui"          {  return GUI; }
+"nea"        {  return NEA; }
+"write"        {  return WRITE; }
+"read"        {  return READ; }
+"function"        {  return FUNCTION; }
+"#"          {  return SI; }
+"!"          {  return SINON; }
+"["          {  return CRO_O; }
+"]"          {  return CRO_F; }
+"!#"         {  return SINONSI; }
+"##"         {  return FOR;}
+"//"         {  return COMMENT;}
+"!="         {  return DIFF; }
+"=="         {  return EGALCONDI; }
+"="          {  return EGAL;}
+"<="         {  return INFEG; }
+">="         {  return SUPEG; }
+"<"          {  return INF; }
+">"          {  return SUP; }
+"."          {  return POINT;}
+","          {  return VIRGUL;}
+"\""         {  return GRIF;}
+"-"          {  return MOINS;}
+"("          {  return PA_O; }
+")"          {  return PA_F; }
+"*"          {  return MUL;}
+"/"          {  return DIV;}
+"%"          {  return MODULO;}
+"+"          {  return PLUS;}
+"\n"          { lineNumber++;return INLINE;}
 [" "\t]      { }
-{entier}     { ECHO; strcpy(yylval.var, yytext); return ENTIER; };
-{identifInt}    { ECHO;strcpy(yylval.var, yytext); return IDENTIFINT; };
-{identifStr}    { ECHO;strcpy(yylval.var, yytext); return IDENTIFSTR; };
+{entier}     {  strcpy(yylval.var, yytext); return ENTIER; };
+{identifInt}    { strcpy(yylval.var, yytext); return IDENTIFINT; };
+{identifStr}    { strcpy(yylval.var, yytext); return IDENTIFSTR; };
 
 {chaine}    { strcpy(yylval.var, yytext); return CHAINE; }
 
 . {
-    fprintf(stderr,"\tERREUR LEXICAL: Lexeme inconnu a la ligne %d. Il s'agit de %s et comporte %d lettre(s)\n",lineNumber,yytext,yyleng);
+    printf("\tERREUR LEXICAL: Lexeme inconnu a la ligne %d. Il s'agit de %s et comporte %d lettre(s)\n",lineNumber,yytext,yyleng);
 	exit(-1);
 }
 %%

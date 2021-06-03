@@ -655,152 +655,152 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 19 "GuiAnalyseur.l"
-{ ECHO; return GUI; }
+{  return GUI; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 20 "GuiAnalyseur.l"
-{ ECHO; return NEA; }
+{  return NEA; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 21 "GuiAnalyseur.l"
-{ ECHO; return WRITE; }
+{  return WRITE; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 22 "GuiAnalyseur.l"
-{ ECHO; return READ; }
+{  return READ; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 23 "GuiAnalyseur.l"
-{ ECHO; return FUNCTION; }
+{  return FUNCTION; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 24 "GuiAnalyseur.l"
-{ ECHO; return SI; }
+{  return SI; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 25 "GuiAnalyseur.l"
-{ ECHO; return SINON; }
+{  return SINON; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 26 "GuiAnalyseur.l"
-{ ECHO; return CRO_O; }
+{  return CRO_O; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 27 "GuiAnalyseur.l"
-{ ECHO; return CRO_F; }
+{  return CRO_F; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 28 "GuiAnalyseur.l"
-{ ECHO; return SINONSI; }
+{  return SINONSI; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 29 "GuiAnalyseur.l"
-{ ECHO; return FOR;}
+{  return FOR;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 30 "GuiAnalyseur.l"
-{ ECHO; return COMMENT;}
+{  return COMMENT;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 31 "GuiAnalyseur.l"
-{ ECHO; return DIFF; }
+{  return DIFF; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 32 "GuiAnalyseur.l"
-{ ECHO; return EGALCONDI; }
+{  return EGALCONDI; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 33 "GuiAnalyseur.l"
-{ ECHO ; return EGAL;}
+{  return EGAL;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 34 "GuiAnalyseur.l"
-{ ECHO; return INFEG; }
+{  return INFEG; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 35 "GuiAnalyseur.l"
-{ ECHO; return SUPEG; }
+{  return SUPEG; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 36 "GuiAnalyseur.l"
-{ ECHO; return INF; }
+{  return INF; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 37 "GuiAnalyseur.l"
-{ ECHO; return SUP; }
+{  return SUP; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 38 "GuiAnalyseur.l"
-{ ECHO; return POINT;}
+{  return POINT;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 39 "GuiAnalyseur.l"
-{ ECHO; return VIRGUL;}
+{  return VIRGUL;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 40 "GuiAnalyseur.l"
-{ ECHO; return GRIF;}
+{  return GRIF;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 41 "GuiAnalyseur.l"
-{ ECHO; return MOINS;}
+{  return MOINS;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 42 "GuiAnalyseur.l"
-{ ECHO; return PA_O; }
+{  return PA_O; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 43 "GuiAnalyseur.l"
-{ ECHO; return PA_F; }
+{  return PA_F; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 44 "GuiAnalyseur.l"
-{ ECHO; return MUL;}
+{  return MUL;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 45 "GuiAnalyseur.l"
-{ ECHO; return DIV;}
+{  return DIV;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 46 "GuiAnalyseur.l"
-{ ECHO; return MODULO;}
+{  return MODULO;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 47 "GuiAnalyseur.l"
-{ ECHO; return PLUS;}
+{  return PLUS;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 48 "GuiAnalyseur.l"
-{ECHO; lineNumber++;return INLINE;}
+{ lineNumber++;return INLINE;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
@@ -810,17 +810,17 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 50 "GuiAnalyseur.l"
-{ ECHO; strcpy(yylval.var, yytext); return ENTIER; };
+{  strcpy(yylval.var, yytext); return ENTIER; };
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 51 "GuiAnalyseur.l"
-{ ECHO;strcpy(yylval.var, yytext); return IDENTIFINT; };
+{ strcpy(yylval.var, yytext); return IDENTIFINT; };
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 52 "GuiAnalyseur.l"
-{ ECHO;strcpy(yylval.var, yytext); return IDENTIFSTR; };
+{ strcpy(yylval.var, yytext); return IDENTIFSTR; };
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
@@ -831,7 +831,7 @@ case 36:
 YY_RULE_SETUP
 #line 56 "GuiAnalyseur.l"
 {
-    fprintf(stderr,"\tERREUR LEXICAL: Lexeme inconnu a la ligne %d. Il s'agit de %s et comporte %d lettre(s)\n",lineNumber,yytext,yyleng);
+    printf("\tERREUR LEXICAL: Lexeme inconnu a la ligne %d. Il s'agit de %s et comporte %d lettre(s)\n",lineNumber,yytext,yyleng);
 	exit(-1);
 }
 	YY_BREAK

@@ -64,12 +64,10 @@ int isDeclared(char *s){
 
 void noDeclareError(char *s){
 	if(isDeclared(s)==0){
-		printf("\tErreur : la variable => %s n'est pas declare vers la ligne %d\n",s,lineNumber);
-		//exit(-2);
+		printf("\tErreur : la variable => %s n'est pas declare vers la ligne %d\n",s,lineNumber-1);
+		exit(-2);
 	}
 }
-
-
 
 int isInt(char *s){
 	char c[4];
@@ -86,7 +84,6 @@ void AjoutIdentif(char *identif,int type) {
 		printf("ERREUR --- linge %d : Variable => %s deja declaree\n", lineNumber-1,identif);
 		exit(-2);
 	}
-	printf("%d---%d\n", sommet,maxDico);
     if (sommet >= maxDico){
 		agrandirDico();
 	}
@@ -108,6 +105,42 @@ void AjoutIdentif(char *identif,int type) {
     sommet++;
 }
 
+void CopyFile(char *NameFile1,char *NameFile2){
+  FILE *file1=fopen(NameFile1,"r");
+  FILE *file2=fopen(NameFile2,"a+");
+   char texte[255];
+  if(file1!=NULL){
+    while(!feof(file1))
+    {
+      fgets(texte,255,file1);
+      fputs(texte,file2);      
+    }
+  }
+   fclose(file1);
+  fclose(file2);
+}
+void InsertCode(){
+  char *header="HeaderGui.txt";
+  char *CodeGen="CodeGenere.txt";
+  char *CodeInte="CodeIntermediair.c";
+  char *Footer="FooterGui.txt";
+  CopyFile(header,CodeInte);
+  CopyFile(CodeGen,CodeInte);
+  CopyFile(Footer,CodeInte);
+}
+void GenereCode(char* string){
+    FILE *file = fopen("CodeGenere.txt","a+");
+      fputs(string, file);
+      fseek(file,0,SEEK_END);
+    fclose(file);
+}
+
+void concatenation(char *s,int type){
+	char *temp ="\tint ";
+	strcat(temp,strcat(s,";")) ;
+	printf("%s\n",temp);
+}
+
 
 %}
 %union{
@@ -120,7 +153,10 @@ void AjoutIdentif(char *identif,int type) {
 %right                  PA_O        PA_F  
 
 %type<var> program listRetour Retour listInstruction instruction declaration listDeclaration variable
-%type<var>	expressionArithmetique affectation texte terme facteur
+%type<var>	expressionArithmetique affectation texte terme facteur affichage for
+ %type<var> comparaison signe_comparaison fonction
+%type<var> while condition condition_si condition_sinon_si condition_sinon
+
 %token<var>	ENTIER 
 %token<var>	IDENTIFINT
 %token<var>	IDENTIFSTR
@@ -134,6 +170,7 @@ void AjoutIdentif(char *identif,int type) {
 
 %%
 program : listRetour
+		{ printf("Warning	: Le programme est vide !"); }
 		|
 		listDeclaration GUI INLINE listInstruction  NEA
 		|
@@ -146,35 +183,111 @@ listDeclaration : declaration
 				listDeclaration declaration
 				;
 declaration : 	variable INLINE
+				|
+				fonction
 				;
-
+fonction :
 variable    :	IDENTIFINT
-				{ AjoutIdentif($1,0); }
+				{ 
+					AjoutIdentif($1,0);
+				}
 				|
 				IDENTIFSTR
 				{ AjoutIdentif($1,1); }
 				;
 listInstruction : 	instruction
+					{ strcpy($$,$1); }
 					|
 					listInstruction instruction
 					;
 
 instruction	:	affectation
+				{
+					strcpy($$,$1);
+				}	
+				|
+				affichage
+				{
+					//strcpy($$,$1);
+				}
+				|
+				for
+				|
+				while
+				|
+				condition 
 				|
 				INLINE
 				;
+
+condition: 		condition_si POINT INLINE
+            	|
+            	condition_si POINT INLINE condition_sinon 
+            	|
+            	condition_si POINT INLINE list_condition_sinon_si 
+            	;
+list_condition_sinon_si: condition_sinon_si POINT INLINE
+						|
+						condition_sinon_si POINT INLINE condition_sinon 
+						|
+						list_condition_sinon_si condition_sinon_si POINT INLINE
+                         ;
+condition_sinon_si:SINONSI CRO_O comparaison CRO_F INLINE listInstruction 
+ 				; 
+condition_si  :SI CRO_O comparaison CRO_F INLINE listInstruction 
+				;
+condition_sinon: SINON INLINE listInstruction POINT INLINE
+				;
+affichage :		WRITE CRO_O CHAINE CRO_F INLINE
+				{
+					//
+				}
+				;
+for 	:		FOR IDENTIFINT CRO_O ENTIER VIRGUL ENTIER CRO_F INLINE listInstruction POINT INLINE
+				{
+					noDeclareError($2);
+					if(atoi($6)<atoi($4)){
+						printf("Dans la boucle for la valeur %s superieure a %s",$4,$6);
+						exit(-1);	
+					} 
+				}
+				;
+while	:		FOR CRO_O comparaison CRO_F INLINE listInstruction POINT INLINE
+				;
+comparaison: IDENTIFINT signe_comparaison expressionArithmetique
+		{
+			noDeclareError($1);
+		}
+		|
+		IDENTIFSTR signe_comparaison IDENTIFSTR
+		{ 
+			noDeclareError($1);
+			noDeclareError($3);
+		}
+		;
+
+signe_comparaison: EGALCONDI 
+				   |
+				   SUPEG 
+				   |
+				   INFEG
+				   |
+				   INF
+				   |
+				   SUP
+				   |
+				   DIFF
+				   ;
 affectation	:	IDENTIFINT EGAL expressionArithmetique INLINE
 				{	
 					noDeclareError($1);
 					strcpy($$,strcat(strcat($1," = "),$3));
-					printf("%s\n",$$);	
 				}
 				|
 				IDENTIFSTR EGAL texte INLINE
 				{	
 					noDeclareError($1);
 					strcpy($$,strcat(strcat($1," = "),$3));	
-					printf("%s\n",$$);
 				}
 				;
 texte		:	IDENTIFSTR
@@ -245,15 +358,13 @@ Retour : INLINE;
 %%		
 
 void yyerror(char * msg){
-	printf("\t Ligne %d : %s\n", lineNumber, msg);
+	printf("\t Erreur de syntaxe vers la ligne %d \n", lineNumber);
 }
 int main(int argc,char ** argv){
 	creerDico();
 	if(argc>1) yyin=fopen(argv[1],"r"); // check result !!!
 	lineNumber=1;
 	if(!yyparse())
-	printf("Expression correct\n");
-	printf("============Affichage du DICO==============\n");
-	printDico();
+	//printf("Expression correct\n");
 	return(0);
 }

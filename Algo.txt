@@ -5,9 +5,14 @@
 @s_k
 @s_f
 Gui
-
-    @n_v = (1 + 2/3) +(2+8)
-    @n_v = @n_v
-
+    @n_d = 1
+    write[les enfats d'hier sont la]
+    ##@n_v[1,2]
+        @n_d = 1
+        @n_d = 3
+    .
+    #[@n_r==0]
+        @s_f=@s_i
+    .
 nea
 
