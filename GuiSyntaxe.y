@@ -162,7 +162,7 @@ void concatenation(char *s,int type){
 %token<var>	IDENTIFSTR
 
 %token<var> GUI  NEA  
-%token<var>	CRO_O CRO_F SI EGAL DIFF SINON SINONSI 
+%token<var>	CRO_O CRO_F SI EGAL DIFF SINON SINONSI listArgument argument
 %token<var> WRITE READ INFEG SUPEG INF SUP FOR CHAINE POINT PA_O PA_F
 %token<var> INLINE EGALCONDI GRIF PLUS MOINS MUL MODULO DIV  COMMENT VIRGUL FUNCTION VIDE
 
@@ -186,7 +186,15 @@ declaration : 	variable INLINE
 				|
 				fonction
 				;
-fonction :
+fonction:FUNCTION CHAINE CRO_O listArgument CRO_F '\n' listDeclaration listInstruction POINT INLINE
+			;
+listArgument:argument
+			|listArgument ',' argument
+			;
+argument:	IDENTIFINT
+			|IDENTIFSTR
+			|{/*vide*/}
+			;
 variable    :	IDENTIFINT
 				{ 
 					AjoutIdentif($1,0);

@@ -1,18 +1,15 @@
-@s_s
-@n_v
-@s_i
-@n_d
-@s_k
-@s_f
+@n_variable1
+@s_varString
+@s_var
+@n_var2
 Gui
-    @n_d = 1
-    write[les enfats d'hier sont la]
-    ##@n_v[1,2]
-        @n_d = 1
-        @n_d = 3
+    @n_variable1 = 1
+    write[WELCOM TO GUI - COMPILATOR]
+    write[les etudiants cherches des sujet de stage]
+    ##@n_variable1[1,2]
+        write[les etudiants cherches des sujet de stage]
     .
-    #[@n_r==0]
-        @s_f=@s_i
+    #[@n_var2==0]
+        
     .
 nea
-

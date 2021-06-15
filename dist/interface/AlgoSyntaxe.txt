@@ -1,0 +1,7 @@
+@n_age
+@s_nom
+@n_prenom
+Gui
+	write[Bonjour les ami]
+	@n_age = @n_prenom             
+nea

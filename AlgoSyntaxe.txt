@@ -5,12 +5,12 @@
 Gui
     @n_variable1 = 1
     write[WELCOM TO GUI - COMPILATOR]
+    write[les etudiants cherches des sujet de stage]
     ##@n_variable1[1,2]
-        @s_var=@s_varString
+        write[les etudiants cherches des sujet de stage]
     .
     #[@n_var2==0]
         
     .
 nea
-
 
